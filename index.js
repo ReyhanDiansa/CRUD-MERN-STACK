@@ -1,12 +1,9 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({path: __dirname+'/.env'});
-}
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+// const BASE_URL = process.env.BASE_URL
+const path=require("path")
 const app = express();
 
 mongoose.connect("mongodb+srv://diansa:123@cluster0.9u0iiws.mongodb.net/crud_db", { useNewUrlParser: true });
@@ -19,7 +16,6 @@ const User = mongoose.model("Users", {
 
 app.use(bodyParser.json());
 app.use(cors());
-
 app.post("/users", async (req, res) => {
   const data = {
     name: req.body.name,
@@ -51,6 +47,18 @@ app.delete("/users/:id", async (req, res) => {
   res.send(user);
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+app.use(express.static(path.join(__dirname,"./frontend/build")));
+
+app.get("*", function (_, res) {
+  res.sendFile(
+    path.join(__dirname, "./frontend/build/index.html"),
+    function (err) {
+      res.status(500).send(err);
+    }
+  );
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server running on `);
 });
